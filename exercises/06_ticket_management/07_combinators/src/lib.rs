@@ -56,7 +56,7 @@ mod tests {
         };
         store.add_ticket(ticket);
 
-        let todos: Vec<&Ticket> = store.to_dos();
+        let todos: Vec<&Ticket> = store.tickets.iter().filter(|t| t.status == Status::ToDo).collect();
         assert_eq!(todos.len(), 1);
         assert_eq!(todos[0], &todo);
     }

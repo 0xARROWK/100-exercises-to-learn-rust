@@ -12,10 +12,23 @@
 // slices of the vector directly. You'll need to allocate new
 // vectors for each half of the original vector. We'll see why
 // this is necessary in the next exercise.
-use std::thread;
+use std::thread::{self, JoinHandle};
 
 pub fn sum(v: Vec<i32>) -> i32 {
-    todo!()
+    let (left, right) = v.split_at(v.len() / 2);
+    
+    let left = left.to_vec();
+    let right = right.to_vec();
+    
+    let handle_1: JoinHandle<i32> = thread::spawn(move || {
+        left.iter().sum::<i32>()
+    });
+
+    let handle_2 = thread::spawn(move || {
+        right.iter().sum::<i32>()
+    });
+
+    handle_1.join().unwrap() + handle_2.join().unwrap()
 }
 
 #[cfg(test)]

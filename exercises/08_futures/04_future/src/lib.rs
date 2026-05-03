@@ -10,7 +10,9 @@ fn spawner() {
 }
 
 async fn example() {
-    let non_send = Rc::new(1);
     yield_now().await;
-    println!("{}", non_send);
+    {
+        let non_send = Rc::new(1);
+        println!("{}", non_send);
+    }
 }

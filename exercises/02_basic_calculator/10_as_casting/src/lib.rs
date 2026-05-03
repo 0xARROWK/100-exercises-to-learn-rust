@@ -6,7 +6,7 @@ mod tests {
 
     #[test]
     fn u16_to_u32() {
-        let v: u32 = todo!();
+        let v: u32 = 47;
         assert_eq!(47u16 as u32, v);
     }
 
@@ -19,19 +19,24 @@ mod tests {
         // literal. If we were to use a variable, the compiler wouldn't be able to
         // catch this at compile time.
         #[allow(overflowing_literals)]
-        let x = { 255 as i8 };
+        let x = { 255u8 as i8 };
 
         // You could solve this by using exactly the same expression as above,
         // but that would defeat the purpose of the exercise. Instead, use a genuine
         // `i8` value that is equivalent to `255` when converted to `u8`.
-        let y: i8 = todo!();
+
+        // 255u8 = b1111_1111, but signed int interpret MSB for sign
+        // when truncating 1111_1111, we keep all bits but MSB = 1, result is negative
+        // from 1111_1111, we invert bits = 0000_0000, then we add 1 = 0000_0001 = 1, sign was negative so result is -1
+        // two's complement can also be calculated as follow: 255 - 2^8 bits = 255 - 256 = -1
+        let y: i8 = -1;
 
         assert_eq!(x, y);
     }
 
     #[test]
     fn bool_to_u8() {
-        let v: u8 = todo!();
+        let v: u8 = 1;
         assert_eq!(true as u8, v);
     }
 }
