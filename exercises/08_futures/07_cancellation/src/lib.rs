@@ -4,11 +4,18 @@ use std::time::Duration;
 use tokio::io::AsyncReadExt;
 use tokio::net::TcpListener;
 
+// In tests, run is spawned as a task.
+// We pass 4 msgs through 4 TCP connections, using a timeout of 20ms
 pub async fn run(listener: TcpListener, n_messages: usize, timeout: Duration) -> Vec<u8> {
     let mut buffer = Vec::new();
     for _ in 0..n_messages {
         let (mut stream, _) = listener.accept().await.unwrap();
         let _ = tokio::time::timeout(timeout, async {
+            // read_to_end yield control back to runtime as soon as there is no more bytes to read.
+            // When the first half of the message is sent, its fully read into the buffer.
+            // Then we wait 40ms in tests, in order to exceed the timeout, so this task is cancelled.
+            // That's why second half is never read.
+            // Finally we enter the next loop iteration and repeat the process for the next msgs
             stream.read_to_end(&mut buffer).await.unwrap();
         })
         .await;
@@ -46,6 +53,6 @@ mod tests {
 
         let buffered = handle.await.unwrap();
         let buffered = std::str::from_utf8(&buffered).unwrap();
-        assert_eq!(buffered, "");
+        assert_eq!(buffered, "hefrthta");
     }
 }
